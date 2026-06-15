@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EMS — Sign In</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+
+    /* Animated gradient background */
+    .bg-gradient-anim {
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 40%, #0f172a 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Floating orbs */
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.25;
+      animation: float 8s ease-in-out infinite;
+    }
+    .orb-1 { width: 400px; height: 400px; background: #4f46e5; top: -100px; left: -100px; animation-delay: 0s; }
+    .orb-2 { width: 350px; height: 350px; background: #7c3aed; bottom: -80px; right: -80px; animation-delay: -3s; }
+    .orb-3 { width: 250px; height: 250px; background: #2563eb; top: 50%; left: 60%; animation-delay: -5s; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) scale(1); }
+      50%       { transform: translateY(-30px) scale(1.05); }
+    }
+
+    /* Glass card */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.97);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    /* Input focus glow */
+    .input-field:focus {
+      outline: none;
+      border-color: #4f46e5;
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+    }
+
+    /* Button shine effect */
+    .btn-signin {
+      background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+      transition: all 0.2s ease;
+    }
+    .btn-signin:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 25px rgba(79, 70, 229, 0.4);
+    }
+    .btn-signin:active { transform: translateY(0); }
+
+    /* Error shake */
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60%  { transform: translateX(-6px); }
+      40%, 80%  { transform: translateX(6px); }
+    }
+    .shake { animation: shake 0.4s ease; }
+  </style>
+</head>
+<body class="bg-gradient-anim min-h-screen flex items-center justify-center p-4">
+
+  <!-- Background orbs -->
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <!-- Login card -->
+  <div class="glass-card rounded-2xl shadow-2xl w-full max-w-md p-8 relative z-10">
+
+    <!-- Logo + branding -->
+    <div class="text-center mb-8">
+      <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-indigo-600 mb-4 shadow-lg">
+        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+      </div>
+      <h1 class="text-2xl font-bold text-gray-900">Employee Management</h1>
+      <p class="text-sm text-gray-500 mt-1">Sign in to your workspace</p>
+    </div>
+
+    <!-- Error alert -->
+    <div id="errorAlert" class="hidden mb-5 flex items-center gap-3 bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm">
+      <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+      </svg>
+      <span>Invalid username or password. Please try again.</span>
+    </div>
+
+    <!-- Logout success alert -->
+    <div id="logoutAlert" class="hidden mb-5 flex items-center gap-3 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-xl px-4 py-3 text-sm">
+      <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+      </svg>
+      <span>You have been signed out successfully.</span>
+    </div>
+
+    <!-- Login form — POSTs to Spring Security's /login endpoint -->
+    <form id="loginForm" action="/login" method="POST" class="space-y-5">
+
+      <!-- Username -->
+      <div>
+        <label for="username" class="block text-sm font-medium text-gray-700 mb-1.5">Username</label>
+        <div class="relative">
+          <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+          </span>
+          <input id="username" name="username" type="text" required autocomplete="username"
+            placeholder="admin or user"
+            class="input-field w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl text-sm text-gray-900 transition-all duration-200" />
+        </div>
+      </div>
+
+      <!-- Password -->
+      <div>
+        <label for="password" class="block text-sm font-medium text-gray-700 mb-1.5">Password</label>
+        <div class="relative">
+          <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+          </span>
+          <input id="password" name="password" type="password" required autocomplete="current-password"
+            placeholder="••••••••"
+            class="input-field w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl text-sm text-gray-900 transition-all duration-200" />
+        </div>
+      </div>
+
+      <!-- Submit -->
+      <button type="submit" class="btn-signin w-full text-white font-semibold py-2.5 rounded-xl text-sm tracking-wide shadow-md mt-2">
+        Sign In to Dashboard
+      </button>
+    </form>
+
+    <!-- Test credentials hint -->
+    <!-- <div class="mt-6 p-4 bg-slate-50 rounded-xl border border-slate-200">
+      <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Test Credentials</p>
+      <div class="grid grid-cols-2 gap-3 text-xs">
+        <div class="bg-white rounded-lg p-2.5 border border-slate-200">
+          <div class="font-semibold text-amber-600 mb-1">⚡ Admin</div>
+          <div class="text-slate-600">admin / admin123</div>
+          <div class="text-slate-400 text-xs mt-1">Full access</div>
+        </div>
+        <div class="bg-white rounded-lg p-2.5 border border-slate-200">
+          <div class="font-semibold text-emerald-600 mb-1">👤 User</div>
+          <div class="text-slate-600">user / user123</div>
+          <div class="text-slate-400 text-xs mt-1">Read only</div>
+        </div>
+      </div>
+    </div> -->
+  </div>
+
+  <script>
+    // Show alerts based on query params set by Spring Security
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('error'))  document.getElementById('errorAlert').classList.remove('hidden');
+    if (params.has('logout')) document.getElementById('logoutAlert').classList.remove('hidden');
+
+    // Shake the card on error
+    if (params.has('error')) {
+      document.querySelector('.glass-card').classList.add('shake');
+    }
+
+    // If already logged in, go straight to dashboard
+    fetch('/api/auth/me', { credentials: 'same-origin' })
+      .then(r => { if (r.ok) window.location.replace('/dashboard.html'); })
+      .catch(() => {});
+  </script>
+</body>
+</html>
